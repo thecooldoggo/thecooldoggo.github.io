@@ -3,11 +3,47 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 99vh;
+  height: 100%;
+  background: linear-gradient(to right, #6a012c, #00001f, #000189);
+  overflow-x: hidden;
 }
+
+@media (max-width: 768px) {
+  body {
+    background: linear-gradient(to bottom, #6a012c, #00001f, #000189);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    background: linear-gradient(to bottom, #6a012c, #00001f, #000189);
+  }
+}
+
 .styled-frame {
   border-radius: 20px;
   border: none;
+  margin: 0 auto;
+  width: 70%;
+  max-width: 500px;
+  max-height: 300px;
+  height: 70%;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+  .styled-frame {
+    width: 90%;
+    height: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .styled-frame {
+    width: 100%;
+    width: 100%;
+  }
 }
 .pfp {
   border-radius: 50%;
@@ -29,6 +65,7 @@ body {
   font-size: 20px;
   margin: 10px;
   font-family: 'Oswald', sans-serif;
+  margin: 0 auto;
 }
 .footer a {
   color: rgb(255, 255, 255);
@@ -62,7 +99,6 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 .go-back:hover {
   transform: scale(1.05);
   transition: transform 0.3s ease-in-out;
