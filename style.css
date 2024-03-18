@@ -92,11 +92,13 @@ body {
 .gradient-text {
   background: linear-gradient(to right, #ebd197, #b48811, #a2790d);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .subcount {
   background: linear-gradient(to right, #c0392b,#8e44ad);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .go-back:hover {
