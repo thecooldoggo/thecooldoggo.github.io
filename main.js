@@ -1,4 +1,5 @@
-const youtubeKey = 'AIzaSyCFMWN3gavWxGZ9t4kHnYl9Q-dmeICxBGA';
+API_KEY: ${{ secrets.YOUTUBE_KEY }}
+const youtubeKey = {YOUTUBE_KEY};
 const youtubeUser = 'UCSFnerDbmzCxFCFl_P7IdSw';
 const subCount = document.getElementById('subCount');
 const delay = 600000;
