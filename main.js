@@ -1,4 +1,4 @@
-const youtubeKey = process.env.YOUTUBE_KEY;
+const youtubeKey = 'AIzaSyCFMWN3gavWxGZ9t4kHnYl9Q-dmeICxBGA';
 const youtubeUser = 'UCSFnerDbmzCxFCFl_P7IdSw';
 const subCount = document.getElementById('subCount');
 const delay = 600000;
