@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NickEh30's Chat Stats</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #121212, #380343);
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 20px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        header {
+            background: linear-gradient(to bottom left, #f1abc0, #d72733, #380343);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        #stats {
+            background: #2c2c2c;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        h2 {
+            border-bottom: 3px solid #d92531;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #ffffff;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #333333;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+            color: #ffffff;
+            transition: background 0.3s;
+        }
+
+        li:hover {
+            background: #444444;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background: linear-gradient(to bottom right, #f1abc0, #d72733, #380343);
+            color: #fff;
+            margin-top: 20px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        button {
+            background: linear-gradient(to bottom left, #f1abc0, #d72733, #380343);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(to bottom left, #d72733, #380343, #f1abc0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>How many times has customs been asked for?</h1>
+        </header>
+        <main>
+            <section id="stats">
+                <h2>It is against the rules to ask for customs, but many new viewers do it, so I made a tracker for fun. :D</h2>
+                <section id="top-user">
+                    <h3>Top User:</h3>
+                    <p id="top-user-info"></p>
+                </section>
+                <div id="users">
+                    <h3>Top 10 Users:</h3>
+                    <ul id="user-list"></ul>
+                </div>
+                <div id="total-mentions">
+                    <h3>Total Mentions:</h3>
+                    <p id="mentions-count"></p>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>-TheCoolDoggo :3</p>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('thecooldoggo.hackclub.app/customs_count.json')
+                .then(response => response.json())
+                .then(data => {
+                    const userList = document.getElementById('user-list');
+                    const mentionsCount = document.getElementById('mentions-count');
+                    const topUserInfo = document.getElementById('top-user-info');
+                    const sortedUsers = Object.entries(data.users).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                    sortedUsers.forEach(([user, count]) => {
+                        const li = document.createElement('li');
+                        li.textContent = `${user}: ${count}`;
+                        userList.appendChild(li);
+                    });
+                    mentionsCount.textContent = data.total_mentions;
+                    if (sortedUsers.length > 0) {
+                        const [topUser, maxMessages] = sortedUsers[0];
+                        topUserInfo.textContent = `${topUser} with ${maxMessages} messages`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching stats:', error);
+                });
+        });
+    </script>
+</body>
+</html>
