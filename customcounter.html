@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NickEh30's Chat Stats">
     <meta name="author" content="TheCoolDoggo">
-    <link rel="shortcut icon" href="images/favicon.webp" type="image/png">
     <title>NickEh30's Chat Stats</title>
     <style>
         body {
@@ -63,6 +62,7 @@
         h3 {
             margin-top: 0;
             color: #ffffff;
+            margin-bottom: 0;
         }
 
         ul {
@@ -81,13 +81,6 @@
 
         li:hover {
             background: #444444;
-        }
-        mentions-count {
-            background: linear-gradient(to right, #ebd197, #b48811, #a2790d);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 2.5em;
         }
         footer {
             text-align: center;
@@ -111,6 +104,33 @@
         button:hover {
             background: linear-gradient(to bottom left, #d72733, #380343, #f1abc0);
         }
+
+        #mentions-count {
+            font-size: 1.5em;
+            background: linear-gradient(to bottom, red, rgb(74, 39, 163));
+            -webkit-background-clip: text;
+            color: transparent;
+            padding: 0;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        #total-mentions {
+            margin: 0;
+            padding: 0;
+            padding-bottom: .3em;
+        }
+
+        .top-user-name {
+            font-weight: bold;
+        }
+
+        .top-user-count {
+            background: linear-gradient(to bottom, red, rgb(74, 39, 163));
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -120,7 +140,11 @@
         </header>
         <main>
             <section id="stats">
-                <h2>It is against the rules to ask for customs, but many new viewers do it, so I made a tracker for fun. :D</h2>
+                <h2>In Nick's chat, It is against the rules to ask for customs, but many new viewers do it, so I made a tracker for fun. :D</h2>
+                <div id="total-mentions">
+                    <h3>Total Mentions:</h3>
+                    <p id="mentions-count"></p>
+                </div>
                 <section id="top-user">
                     <h3>Top User:</h3>
                     <p id="top-user-info"></p>
@@ -128,10 +152,6 @@
                 <div id="users">
                     <h3>Top 10 Users:</h3>
                     <ul id="user-list"></ul>
-                </div>
-                <div id="total-mentions">
-                    <h3>Total Mentions:</h3>
-                    <p id="mentions-count"></p>
                 </div>
             </section>
         </main>
@@ -156,7 +176,7 @@
                     mentionsCount.textContent = data.total_mentions;
                     if (sortedUsers.length > 0) {
                         const [topUser, maxMessages] = sortedUsers[0];
-                        topUserInfo.textContent = `${topUser} with ${maxMessages} messages`;
+                        topUserInfo.innerHTML = `<span class="top-user-name">${topUser}</span> with <span class="top-user-count">${maxMessages}</span> mentions.`;
                     }
                 })
                 .catch(error => {
