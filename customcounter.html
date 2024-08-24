@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" href="images/favicon.webp" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NickEh30's Chat Stats">
+    <link rel="shortcut icon" href="images/favicon.webp" type="image/png">
     <meta name="author" content="TheCoolDoggo">
     <title>NickEh30's Chat Stats</title>
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -18,6 +21,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            text-align: center;
         }
 
         .container {
@@ -77,12 +81,16 @@
             padding: 10px;
             border-radius: 4px;
             color: #ffffff;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.3s;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
         }
 
         li:hover {
             background: #444444;
+            transform: scale(1.05);
         }
+
         footer {
             text-align: center;
             padding: 10px 0;
@@ -99,11 +107,12 @@
             padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.3s;
         }
 
         button:hover {
             background: linear-gradient(to bottom left, #d72733, #380343, #f1abc0);
+            transform: scale(1.05);
         }
 
         #mentions-count {
@@ -132,15 +141,46 @@
             color: transparent;
             font-weight: bold;
         }
+
+        .highlight {
+            background: linear-gradient(to bottom left, #f1abc0, #d72733, #380343);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .parallax {
+            background-attachment: fixed;
+            background-size: cover;
+        }
     </style>
 </head>
-<body>
+<body class="parallax">
     <div class="container">
         <header>
             <h1>How many times has customs been asked for?</h1>
         </header>
         <main>
-            <section id="stats">
+            <section id="stats" class="fade-in">
                 <h2>In Nick's chat, It is against the rules to ask for customs, but many new viewers do it, so I made a tracker for fun. :D</h2>
                 <div id="total-mentions">
                     <h3>Total Mentions:</h3>
@@ -169,21 +209,56 @@
                     const mentionsCount = document.getElementById('mentions-count');
                     const topUserInfo = document.getElementById('top-user-info');
                     const sortedUsers = Object.entries(data.users).sort((a, b) => b[1] - a[1]).slice(0, 10);
-                    sortedUsers.forEach(([user, count]) => {
+                    sortedUsers.forEach(([user, count], index) => {
                         const li = document.createElement('li');
                         li.textContent = `${user}: ${count}`;
+                        li.style.animationDelay = `${index * 0.1}s`;
                         userList.appendChild(li);
                     });
-                    mentionsCount.textContent = data.total_mentions;
+                    countUp(mentionsCount, 0, data.total_mentions, 1000);
                     if (sortedUsers.length > 0) {
                         const [topUser, maxMessages] = sortedUsers[0];
-                        topUserInfo.innerHTML = `<span class="top-user-name">${topUser}</span> with <span class="top-user-count">${maxMessages}</span> mentions.`;
+                        topUserInfo.innerHTML = `<span class="top-user-name highlight">${topUser}</span> with <span class="top-user-count">${maxMessages}</span> mentions.`;
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching stats:', error);
                 });
+
+            const fadeInElements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            });
+
+            fadeInElements.forEach(element => {
+                observer.observe(element);
+            });
         });
+
+        function countUp(element, start, end, duration) {
+            let startTime = null;
+
+            function animate(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const progress = currentTime - startTime;
+                const easing = easeOutCubic(progress / duration);
+                const current = Math.min(Math.floor(easing * (end - start) + start), end);
+                element.textContent = current;
+                if (current < end) {
+                    requestAnimationFrame(animate);
+                }
+            }
+
+            function easeOutCubic(t) {
+                return 1 - Math.pow(1 - t, 3);
+            }
+
+            requestAnimationFrame(animate);
+        }
     </script>
 </body>
 </html>
