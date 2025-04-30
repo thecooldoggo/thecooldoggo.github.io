@@ -1,111 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <html lang="en">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A website for TheDog.">
-    <title>More - TheCoolDoggo Studios</title>
-    <link rel="shortcut icon" href="images/favicon.webp" type="image/png">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: rgb(52, 52, 52);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        #formContainer {
-            text-align: center;
-        }
-    img.block {
-    display: block;
-    margin: 0 auto; 
-    width: 200px; 
-    height: 200px;
-    opacity: 0.4;
-    padding-bottom: 30px;
-}
-    </style>
-</head>
-<body>
-    <form id="passwordForm">
-        <img class="block" src="images/block.svg" alt="a block icon">
-        <input type="password" id="passwordInput" required>
-        <input type="submit" value="Enter" style="color: rgb(0, 0, 0)">
-        <p id="errorMessage" style="color: rgb(239, 93, 93); display: none; font-family: 'Raleway', 'Helvetica Neue'; font-size: 20px;">Wrong password.</p>
-        <p id="errorMessage2" style="color: rgb(239, 93, 93); display: none; font-family: 'Raleway', 'Helvetica Neue'; font-size: 20px;">WOMP WOMP</p>
-    </form>
-    <div id="content" style="display: none;"></div>
-</body>
-    <div id="content" style="display: none;">
-</body>
-<div id="no">
-    <p style="color: rgb(239, 93, 93); display: none; font-family: 'Raleway', 'Helvetica Neue'; font-size: 20px;"> This website is not supported.</p>
-  </div>
-</style>
-<script>
-    let escapeCounter = 0;
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            escapeCounter++;
-            if (escapeCounter === 3) {
-                window.location.href = "https://google.com"; 
-            }
-        } else {
-            escapeCounter = 0;
-        }
-    });
-
-    function loadContent() {
-        const existingObject = document.body.querySelector('object');
-        if (existingObject) {   
-            document.body.removeChild(existingObject);
-        }
-        let userInput = prompt("Where to?");
-        var obj = document.createElement('object');
-        obj.data =  userInput;
-        obj.width = '100%';
-        obj.height = '100%';
-        document.body.appendChild(obj);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Main</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --dark-green: #1a3c2a;
+      --light-green: #2d6646;
+      --accent: #4CAF50;
+      --text: #e0e0e0;
+      --dark-bg: #0a1f15;
     }
     
-    var failedAttempts = 0;
-    document.getElementById('passwordForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        var password = document.getElementById('passwordInput').value;
-        if (password === 'elperrito') {
-            document.getElementById('passwordForm').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-            var date = new Date();
-            date.setTime(date.getTime() + (3*24*60*60*1000));
-            var expires = "expires=" + date.toUTCString();
-            document.cookie = "session=69200; " + expires + "; path=/";
-            loadContent();
-            failedAttempts = 0;
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'L') {
-                    loadContent();
-                }
-            });
-        } else if (password === 'thedog/sub') {
-            document.getElementById('errorMessage2').style.display = 'block';
-        } else {
-            failedAttempts++;
-            document.getElementById('errorMessage').style.display = 'block';
-            if (failedAttempts >= 2) {
-                window.location.href = "https://google.com"; 
-            }
-        }
-    });
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Consolas', monospace;
+      background-color: var(--dark-green);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        let x = document.cookie;
-        if (x.includes('session=69200')) {
-            document.getElementById('passwordForm').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-            loadContent();
-        }
+    #landing {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      opacity: 0.8;
+      margin-bottom: 2rem;
+    }
+
+    .input-container {
+      max-width: 600px;
+      width: 90%;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    #url-input {
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 1rem;
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--light-green);
+      border-radius: 6px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    #url-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+    }
+
+    .go-btn {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .go-btn:hover {
+      background-color: #3e8e41;
+    }
+
+    .option-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    
+    .options {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+    
+    .option-box {
+      background-color: rgba(0,0,0,0.2);
+      border: 1px solid var(--light-green);
+      border-radius: 8px;
+      padding: 25px;
+      width: 180px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .option-box:hover {
+      border-color: var(--accent);
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .option-box i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    footer {
+      padding: 15px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(224, 224, 224, 0.7);
+      background-color: rgba(0,0,0,0.2);
+      transition: opacity 0.3s ease;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    #content-view {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+    }
+
+    #loading-screen {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--dark-bg);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .loader {
+      border: 5px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      border-top: 5px solid var(--accent);
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .method-label {
+      font-size: 0.8rem;
+      color: var(--text);
+      margin-top: 8px;
+      opacity: 0.8;
+      text-align: center;
+    }
+
+    #method-switch {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      z-index: 9999;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #method-switch:hover {
+      opacity: 1;
+    }
+
+    #method-switch:hover .switch-box {
+      display: flex;
+    }
+
+    .switch-box {
+      display: none;
+      position: absolute;
+      top: 40px;
+      right: 10px;
+      background-color: var(--dark-bg);
+      border: 1px solid var(--light-green);
+      border-radius: 4px;
+      padding: 10px;
+      flex-direction: column;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      min-width: 180px;
+    }
+
+    .switch-btn {
+      padding: 5px 10px;
+      background-color: var(--light-green);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px 0;
+      transition: background-color 0.2s;
+    }
+
+    .switch-btn:hover {
+      background-color: var(--accent);
+    }
+
+    .corner-icon {
+      font-size: 1.5rem;
+      color: var(--accent);
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .back-btn-area {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: 80px;
+      z-index: 9998;
+      display: none;
+    }
+    
+    .back-btn-area:hover #back-btn {
+      opacity: 0.7;
+    }
+
+    #back-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 9999;
+      background-color: var(--dark-bg);
+      color: var(--text);
+      border: 1px solid var(--light-green);
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #back-btn:hover {
+      opacity: 1 !important;
+      background-color: var(--light-green);
+    }
+  </style>
+</head>
+<body>
+  <div id="landing">
+    <h1><i class="fas fa-globe"></i> Web Navigator</h1>
+    <p class="subtitle">Browse the web</p>
+    
+    <div class="input-container">
+      <input type="text" id="url-input" placeholder="Where to? (e.g. example.com)" autofocus 
+        onkeydown="if(event.key==='Enter') processUrl()">
+      <button class="go-btn" onclick="processUrl()">GO</button>
+    </div>
+    
+    <div id="option-container" class="option-container">
+      <p>What type of content?</p>
+      <div class="options">
+        <div class="option-box" onclick="loadWithPreference('news')">
+          <i class="fas fa-newspaper"></i>
+          <h3>News and Articles</h3>
+        </div>
+        <div class="option-box" onclick="loadWithPreference('gaming')">
+          <i class="fas fa-gamepad"></i>
+          <h3>Gaming</h3>
+        </div>
+        <div class="option-box" onclick="loadWithPreference('general')">
+          <i class="fas fa-globe-americas"></i>
+          <h3>General Use</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer id="footer">
+    Made by 
+    <a href="https://github.com/Zynk-dot" target="_blank">zynk-dot</a> and 
+    <a href="https://github.com/thecooldoggo" target="_blank">thecooldoggo</a>
+  </footer>
+  
+  <div id="loading-screen">
+    <div class="loader"></div>
+    <p id="loading-text">Loading content...</p>
+  </div>
+  
+  <div id="content-view"></div>
+  
+  <div id="method-switch">
+    <i class="fas fa-cog corner-icon"></i>
+    <div class="switch-box">
+      <button class="switch-btn" onclick="switchMethod()">Try next method</button>
+      <p class="method-label" id="method-label">Current: Direct Method</p>
+    </div>
+  </div>
+  
+  <div class="back-btn-area">
+    <button id="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+  </div>
+
+  <script>
+    let currentUrl = '';
+    let currentMethod = '';
+    let contentType = '';
+    let method1Failed = false;
+    let method2Failed = false;
+    let method3Failed = false;
+    let method4Failed = false;
+    
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && document.getElementById('option-container').style.display === 'flex') {
+        loadWithPreference('general');
+      }
     });
-</script>
+    
+    function processUrl() {
+      const input = document.getElementById('url-input').value.trim();
+      if (!input) return;
+      
+      currentUrl = input;
+      if (!/^https?:\/\//i.test(currentUrl)) {
+        currentUrl = 'https://' + currentUrl.replace(/^\/+/, '');
+      }
+      
+      document.getElementById('option-container').style.display = 'flex';
+      document.querySelector('.option-container').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function loadWithPreference(type) {
+      contentType = type;
+      method1Failed = false;
+      method2Failed = false;
+      method3Failed = false;
+      method4Failed = false;
+      
+      showLoading();
+      
+      document.getElementById('landing').style.display = 'none';
+      document.getElementById('footer').style.display = 'none';
+      document.querySelector('.back-btn-area').style.display = 'block';
+      
+      if (type === 'general') {
+        loadWithMethod2();
+      } else {
+        loadWithMethod1();
+      }
+    }
+    
+    function showLoading() {
+      const loadingScreen = document.getElementById('loading-screen');
+      loadingScreen.style.display = 'flex';
+    }
+    
+    function hideLoading() {
+      const loadingScreen = document.getElementById('loading-screen');
+      loadingScreen.style.display = 'none';
+    }
+    
+    function loadWithMethod1() {
+      currentMethod = 'method1';
+      document.getElementById('loading-text').innerText = 'Loading via direct method...';
+      document.getElementById('method-label').innerText = 'Current: Direct Method';
+      
+      try {
+        const contentView = document.getElementById('content-view');
+        contentView.innerHTML = '';
+        contentView.style.display = 'block';
+        
+        const obj = document.createElement('object');
+        obj.data = currentUrl;
+        obj.width = '100%';
+        obj.height = '100%';
+        obj.style.border = 'none';
+        
+        let loadTimeout = setTimeout(() => {
+          method1Failed = true;
+          if (!method2Failed) {
+            loadWithMethod2();
+          } else if (!method3Failed) {
+            loadWithMethod3();
+          } else if (!method4Failed) {
+            loadWithMethod4();
+          } else {
+            handleAllMethodsFailed();
+          }
+        }, 10000);
+        
+        obj.onload = function() {
+          clearTimeout(loadTimeout);
+          hideLoading();
+        };
+        
+        obj.onerror = function() {
+          clearTimeout(loadTimeout);
+          method1Failed = true;
+          if (!method2Failed) {
+            loadWithMethod2();
+          } else if (!method3Failed) {
+            loadWithMethod3();
+          } else if (!method4Failed) {
+            loadWithMethod4();
+          } else {
+            handleAllMethodsFailed();
+          }
+        };
+        
+        contentView.appendChild(obj);
+      } catch (error) {
+        method1Failed = true;
+        if (!method2Failed) {
+          loadWithMethod2();
+        } else if (!method3Failed) {
+          loadWithMethod3();
+        } else if (!method4Failed) {
+          loadWithMethod4();
+        } else {
+          handleAllMethodsFailed();
+        }
+      }
+    }
+    
+    function loadWithMethod2() {
+      currentMethod = 'method2';
+      document.getElementById('loading-text').innerText = 'Loading via proxy method...';
+      document.getElementById('method-label').innerText = 'Current: Proxy API';
+      
+      try {
+        const contentView = document.getElementById('content-view');
+        contentView.innerHTML = '';
+        contentView.style.display = 'block';
+        
+        const iframe = document.createElement('iframe');
+        iframe.id = 'contentFrame';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        contentView.appendChild(iframe);
+        
+        let loadTimeout = setTimeout(() => {
+          method2Failed = true;
+          if (!method1Failed) {
+            loadWithMethod1();
+          } else if (!method3Failed) {
+            loadWithMethod3();
+          } else if (!method4Failed) {
+            loadWithMethod4();
+          } else {
+            handleAllMethodsFailed();
+          }
+        }, 15000);
+        
+        fetchViaProxy(currentUrl).then(html => {
+          clearTimeout(loadTimeout);
+          
+          const baseHref = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+          html = html.replace(/<head.*?>/i, match => match + '<base href="' + baseHref + '">');
+          
+          html = html.replace('</body>', `
+            <script>
+              document.body.addEventListener('click', function(event) {
+                let target = event.target;
+                while (target && target.tagName !== 'A') target = target.parentElement;
+                if (target && target.href) {
+                  event.preventDefault();
+                  parent.postMessage({ type: 'stealth-navigate', url: target.href }, '*');
+                }
+              });
+            <\/script></body>`);
+          
+          const iframe = document.getElementById('contentFrame');
+          iframe.srcdoc = html;
+          hideLoading();
+        }).catch(error => {
+          method2Failed = true;
+          if (!method1Failed) {
+            loadWithMethod1();
+          } else if (!method3Failed) {
+            loadWithMethod3();
+          } else if (!method4Failed) {
+            loadWithMethod4();
+          } else {
+            handleAllMethodsFailed();
+          }
+        });
+      } catch (error) {
+        method2Failed = true;
+        if (!method1Failed) {
+          loadWithMethod1();
+        } else if (!method3Failed) {
+          loadWithMethod3();
+        } else if (!method4Failed) {
+          loadWithMethod4();
+        } else {
+          handleAllMethodsFailed();
+        }
+      }
+    }
+    
+    function loadWithMethod3() {
+      currentMethod = 'method3';
+      document.getElementById('loading-text').innerText = 'Loading via archive method...';
+      document.getElementById('method-label').innerText = 'Current: Archive';
+      
+      try {
+        const contentView = document.getElementById('content-view');
+        contentView.innerHTML = '';
+        contentView.style.display = 'block';
+        
+        const obj = document.createElement('object');
+        const archiveUrl = `https://web.archive.org/web/2/${currentUrl}`;
+        obj.data = archiveUrl;
+        obj.width = '100%';
+        obj.height = '100%';
+        obj.style.border = 'none';
+        
+        let loadTimeout = setTimeout(() => {
+          method3Failed = true;
+          if (!method1Failed) {
+            loadWithMethod1();
+          } else if (!method2Failed) {
+            loadWithMethod2();
+          } else if (!method4Failed) {
+            loadWithMethod4();
+          } else {
+            handleAllMethodsFailed();
+          }
+        }, 12000);
+        
+        obj.onload = function() {
+          clearTimeout(loadTimeout);
+          hideLoading();
+        };
+        
+        obj.onerror = function() {
+          clearTimeout(loadTimeout);
+          method3Failed = true;
+          if (!method1Failed) {
+            loadWithMethod1();
+          } else if (!method2Failed) {
+            loadWithMethod2();
+          } else if (!method4Failed) {
+            loadWithMethod4();
+          } else {
+            handleAllMethodsFailed();
+          }
+        };
+        
+        contentView.appendChild(obj);
+      } catch (error) {
+        method3Failed = true;
+        if (!method1Failed) {
+          loadWithMethod1();
+        } else if (!method2Failed) {
+          loadWithMethod2();
+        } else if (!method4Failed) {
+          loadWithMethod4();
+        } else {
+          handleAllMethodsFailed();
+        }
+      }
+    }
+
+    function loadWithMethod4() {
+      currentMethod = 'method4';
+      document.getElementById('loading-text').innerText = 'Loading via advanced proxy...';
+      document.getElementById('method-label').innerText = 'Current: Advanced Proxy';
+      
+      const proxyServices = [
+        {
+          name: "Google Translate Proxy",
+          getUrl: (url) => `https://translate.google.com/translate?sl=auto&tl=en&u=${encodeURIComponent(url)}`
+        },
+        {
+          name: "DeepL Translator",
+          getUrl: (url) => `https://www.deepl.com/translator#auto/en/${encodeURIComponent(url)}`
+        },
+        {
+          name: "Archive.is",
+          getUrl: (url) => `https://archive.is/${url}`
+        },
+        {
+          name: "Archive.today",
+          getUrl: (url) => `https://archive.ph/${url}`
+        },
+      ];
+      
+      function tryNextProxy(index) {
+        if (index >= proxyServices.length) {
+          method4Failed = true;
+          handleAllMethodsFailed();
+          return;
+        }
+        
+        const proxy = proxyServices[index];
+        document.getElementById('loading-text').innerText = `Loading via ${proxy.name}...`;
+        
+        try {
+          const contentView = document.getElementById('content-view');
+          contentView.innerHTML = '';
+          contentView.style.display = 'block';
+          
+          const obj = document.createElement('object');
+          obj.data = proxy.getUrl(currentUrl);
+          obj.width = '100%';
+          obj.height = '100%';
+          obj.style.border = 'none';
+          obj.type = 'text/html';
+          
+
+          obj.id = 'proxy-object';
+          
+
+          let hasLoaded = false;
+          
+          let loadTimeout = setTimeout(() => {
+            if (!hasLoaded) {
+              console.log(`${proxy.name} timed out, trying next proxy`);
+              tryNextProxy(index + 1);
+            }
+          }, 15000);
+          
+          obj.onload = function() {
+
+            hasLoaded = true;
+            clearTimeout(loadTimeout);
+  
+            setTimeout(() => {
+              hideLoading();
+              console.log(`Successfully loaded via ${proxy.name}`);
+            }, 500);
+          };
+          
+
+          obj.addEventListener('load', function() {
+            hasLoaded = true;
+            clearTimeout(loadTimeout);
+            hideLoading();
+            console.log(`Successfully loaded via ${proxy.name}`);
+          });
+          
+          obj.onerror = function(e) {
+            console.error(`Error with ${proxy.name}:`, e);
+            if (!hasLoaded) {
+              clearTimeout(loadTimeout);
+              console.log(`${proxy.name} failed, trying next proxy`);
+              tryNextProxy(index + 1);
+            }
+          };
+          
+
+          setTimeout(() => {
+            if (document.getElementById('proxy-object') === obj && !hasLoaded) {
+              try {
+                const objDoc = obj.contentDocument || obj.contentWindow?.document;
+                if (objDoc && objDoc.body && objDoc.body.innerHTML.length > 100) {
+                  hasLoaded = true;
+                  clearTimeout(loadTimeout);
+                  hideLoading();
+                  console.log(`Successfully loaded via ${proxy.name} (content check)`);
+                }
+              } catch (e) {
+           
+                if (!hasLoaded) {
+                  hasLoaded = true;
+                  clearTimeout(loadTimeout);
+                  hideLoading();
+                  console.log(`Successfully loaded via ${proxy.name} (cross-origin)`);
+                }
+              }
+            }
+          }, 5000);
+          
+          contentView.appendChild(obj);
+        } catch (error) {
+          console.error(`Error setting up ${proxy.name}:`, error);
+          tryNextProxy(index + 1);
+        }
+      }
+      
+      tryNextProxy(0);
+    }
+    
+    async function fetchViaProxy(url) {
+      const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+      const response = await fetch(proxy);
+      if (!response.ok) throw new Error("Proxy failed with status " + response.status);
+      const json = await response.json();
+      return json.contents;
+    }
+    
+    function handleAllMethodsFailed() {
+      hideLoading();
+      const contentView = document.getElementById('content-view');
+      contentView.innerHTML = `
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background-color: var(--dark-bg); color: var(--text);">
+          <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ff9800; margin-bottom: 20px;"></i>
+          <h2>Unable to Load Content</h2>
+          <p>All proxy methods failed to load the requested page.</p>
+          <p>URL: <code style="background: rgba(255,255,255,0.1); padding: 5px; border-radius: 3px;">${currentUrl}</code></p>
+          <button onclick="goBack()" style="margin-top: 20px; padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Return to Home
+          </button>
+        </div>
+      `;
+    }
+    
+    function switchMethod() {
+      showLoading();
+      if (currentMethod === 'method1') {
+        loadWithMethod2();
+      } else if (currentMethod === 'method2') {
+        loadWithMethod3();
+      } else if (currentMethod === 'method3') {
+        loadWithMethod4();
+      } else {
+        loadWithMethod1();
+      }
+    }
+    
+    function goBack() {
+      document.getElementById('landing').style.display = 'flex';
+      document.getElementById('footer').style.display = 'block';
+      document.getElementById('content-view').style.display = 'none';
+      document.querySelector('.back-btn-area').style.display = 'none';
+      document.getElementById('url-input').value = '';
+      document.getElementById('option-container').style.display = 'none';
+      
+      method1Failed = false;
+      method2Failed = false;
+      method3Failed = false;
+      method4Failed = false;
+      currentUrl = '';
+      currentMethod = '';
+    }
+    
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'stealth-navigate' && typeof e.data.url === 'string') {
+        currentUrl = e.data.url;
+        showLoading();
+        
+        if (currentMethod === 'method1') {
+          loadWithMethod1();
+        } else if (currentMethod === 'method2') {
+          loadWithMethod2();
+        } else if (currentMethod === 'method3') {
+          loadWithMethod3();
+        } else if (currentMethod === 'method4') {
+          loadWithMethod4();
+        } else {
+          if (contentType === 'general') {
+            loadWithMethod2();
+          } else {
+            loadWithMethod1();
+          }
+        }
+      }
+    });
+  </script>
+</body>
 </html>
+``` 
