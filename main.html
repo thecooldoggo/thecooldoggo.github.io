@@ -288,6 +288,29 @@
       opacity: 1 !important;
       background-color: var(--light-green);
     }
+    
+    .next-method-btn {
+      margin-top: 15px;
+      padding: 8px 15px;
+      background-color: var(--light-green);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-weight: bold;
+    }
+
+    .next-method-btn:hover {
+      background-color: var(--accent);
+    }
+    
+    .loading-info {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -329,6 +352,8 @@
   <div id="loading-screen">
     <div class="loader"></div>
     <p id="loading-text">Loading content...</p>
+    <p class="loading-info">If this takes too long, try another method</p>
+    <button class="next-method-btn" onclick="switchMethod()">Try Next Method</button>
   </div>
   
   <div id="content-view"></div>
@@ -349,10 +374,9 @@
     let currentUrl = '';
     let currentMethod = '';
     let contentType = '';
-    let method1Failed = false;
-    let method2Failed = false;
-    let method3Failed = false;
-    let method4Failed = false;
+    let methodsFailed = { method1: false, method2: false, method3: false, method4: false };
+    let isCurrentlyLoading = false;
+    let attemptingLoad = false;
     
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Enter' && document.getElementById('option-container').style.display === 'flex') {
@@ -375,10 +399,7 @@
     
     function loadWithPreference(type) {
       contentType = type;
-      method1Failed = false;
-      method2Failed = false;
-      method3Failed = false;
-      method4Failed = false;
+      methodsFailed = { method1: false, method2: false, method3: false, method4: false };
       
       showLoading();
       
@@ -396,17 +417,48 @@
     function showLoading() {
       const loadingScreen = document.getElementById('loading-screen');
       loadingScreen.style.display = 'flex';
+      isCurrentlyLoading = true;
     }
     
     function hideLoading() {
       const loadingScreen = document.getElementById('loading-screen');
       loadingScreen.style.display = 'none';
+      isCurrentlyLoading = false;
+      attemptingLoad = false;
+    }
+    
+    function handleMethodFailure(method) {
+      if (attemptingLoad) {
+        console.log(`${method} failed, setting failure flag`);
+        methodsFailed[method] = true;
+        attemptingLoad = false;
+        
+        // Only auto-switch if all methods haven't been tried yet
+        const allMethodsTried = Object.values(methodsFailed).every(failed => failed);
+        if (!allMethodsTried) {
+          if (!methodsFailed.method1) {
+            loadWithMethod1();
+          } else if (!methodsFailed.method2) {
+            loadWithMethod2();
+          } else if (!methodsFailed.method3) {
+            loadWithMethod3();
+          } else if (!methodsFailed.method4) {
+            loadWithMethod4();
+          } else {
+            handleAllMethodsFailed();
+          }
+        } else {
+          handleAllMethodsFailed();
+        }
+      }
     }
     
     function loadWithMethod1() {
+      attemptingLoad = true;
       currentMethod = 'method1';
       document.getElementById('loading-text').innerText = 'Loading via direct method...';
       document.getElementById('method-label').innerText = 'Current: Direct Method';
+      showLoading();
       
       try {
         const contentView = document.getElementById('content-view');
@@ -418,58 +470,58 @@
         obj.width = '100%';
         obj.height = '100%';
         obj.style.border = 'none';
+        obj.id = 'direct-object';
         
         let loadTimeout = setTimeout(() => {
-          method1Failed = true;
-          if (!method2Failed) {
-            loadWithMethod2();
-          } else if (!method3Failed) {
-            loadWithMethod3();
-          } else if (!method4Failed) {
-            loadWithMethod4();
-          } else {
-            handleAllMethodsFailed();
+          if (attemptingLoad) {
+            handleMethodFailure('method1');
           }
-        }, 10000);
+        }, 12000);
         
         obj.onload = function() {
-          clearTimeout(loadTimeout);
-          hideLoading();
+          if (attemptingLoad) {
+            clearTimeout(loadTimeout);
+            
+            // Check if content actually loaded
+            setTimeout(() => {
+              try {
+                const objDoc = obj.contentDocument || obj.contentWindow?.document;
+                if (objDoc && objDoc.body && objDoc.body.innerHTML.length > 100) {
+                  hideLoading();
+                  console.log("Direct method loaded successfully");
+                } else {
+                  handleMethodFailure('method1');
+                }
+              } catch (e) {
+                // Cross-origin restrictions mean we can't check content
+                // Assume success if we got this far
+                hideLoading();
+                console.log("Direct method loaded but can't check content (cross-origin)");
+              }
+            }, 1000);
+          }
         };
         
         obj.onerror = function() {
-          clearTimeout(loadTimeout);
-          method1Failed = true;
-          if (!method2Failed) {
-            loadWithMethod2();
-          } else if (!method3Failed) {
-            loadWithMethod3();
-          } else if (!method4Failed) {
-            loadWithMethod4();
-          } else {
-            handleAllMethodsFailed();
+          if (attemptingLoad) {
+            clearTimeout(loadTimeout);
+            handleMethodFailure('method1');
           }
         };
         
         contentView.appendChild(obj);
       } catch (error) {
-        method1Failed = true;
-        if (!method2Failed) {
-          loadWithMethod2();
-        } else if (!method3Failed) {
-          loadWithMethod3();
-        } else if (!method4Failed) {
-          loadWithMethod4();
-        } else {
-          handleAllMethodsFailed();
-        }
+        console.error("Error in method 1:", error);
+        handleMethodFailure('method1');
       }
     }
     
     function loadWithMethod2() {
+      attemptingLoad = true;
       currentMethod = 'method2';
       document.getElementById('loading-text').innerText = 'Loading via proxy method...';
       document.getElementById('method-label').innerText = 'Current: Proxy API';
+      showLoading();
       
       try {
         const contentView = document.getElementById('content-view');
@@ -484,69 +536,73 @@
         contentView.appendChild(iframe);
         
         let loadTimeout = setTimeout(() => {
-          method2Failed = true;
-          if (!method1Failed) {
-            loadWithMethod1();
-          } else if (!method3Failed) {
-            loadWithMethod3();
-          } else if (!method4Failed) {
-            loadWithMethod4();
-          } else {
-            handleAllMethodsFailed();
+          if (attemptingLoad) {
+            handleMethodFailure('method2');
           }
         }, 15000);
         
         fetchViaProxy(currentUrl).then(html => {
-          clearTimeout(loadTimeout);
-          
-          const baseHref = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-          html = html.replace(/<head.*?>/i, match => match + '<base href="' + baseHref + '">');
-          
-          html = html.replace('</body>', `
-            <script>
-              document.body.addEventListener('click', function(event) {
-                let target = event.target;
-                while (target && target.tagName !== 'A') target = target.parentElement;
-                if (target && target.href) {
-                  event.preventDefault();
-                  parent.postMessage({ type: 'stealth-navigate', url: target.href }, '*');
+          if (attemptingLoad) {
+            clearTimeout(loadTimeout);
+            
+            if (!html || html.length < 100) {
+              console.log("Proxy returned empty or minimal content");
+              handleMethodFailure('method2');
+              return;
+            }
+            
+            const baseHref = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+            html = html.replace(/<head.*?>/i, match => match + '<base href="' + baseHref + '">');
+            
+            html = html.replace('</body>', `
+              <script>
+                document.body.addEventListener('click', function(event) {
+                  let target = event.target;
+                  while (target && target.tagName !== 'A') target = target.parentElement;
+                  if (target && target.href) {
+                    event.preventDefault();
+                    parent.postMessage({ type: 'stealth-navigate', url: target.href }, '*');
+                  }
+                });
+              <\/script></body>`);
+            
+            const iframe = document.getElementById('contentFrame');
+            if (iframe) {
+              iframe.onload = function() {
+                hideLoading();
+                console.log("Proxy method loaded successfully");
+              };
+              
+              iframe.srcdoc = html;
+              
+              // Fallback in case onload doesn't fire
+              setTimeout(() => {
+                if (attemptingLoad) {
+                  hideLoading();
+                  console.log("Proxy method: fallback timer triggered");
                 }
-              });
-            <\/script></body>`);
-          
-          const iframe = document.getElementById('contentFrame');
-          iframe.srcdoc = html;
-          hideLoading();
+              }, 3000);
+            }
+          }
         }).catch(error => {
-          method2Failed = true;
-          if (!method1Failed) {
-            loadWithMethod1();
-          } else if (!method3Failed) {
-            loadWithMethod3();
-          } else if (!method4Failed) {
-            loadWithMethod4();
-          } else {
-            handleAllMethodsFailed();
+          console.error("Error in proxy method:", error);
+          if (attemptingLoad) {
+            clearTimeout(loadTimeout);
+            handleMethodFailure('method2');
           }
         });
       } catch (error) {
-        method2Failed = true;
-        if (!method1Failed) {
-          loadWithMethod1();
-        } else if (!method3Failed) {
-          loadWithMethod3();
-        } else if (!method4Failed) {
-          loadWithMethod4();
-        } else {
-          handleAllMethodsFailed();
-        }
+        console.error("Error setting up method 2:", error);
+        handleMethodFailure('method2');
       }
     }
     
     function loadWithMethod3() {
+      attemptingLoad = true;
       currentMethod = 'method3';
       document.getElementById('loading-text').innerText = 'Loading via archive method...';
       document.getElementById('method-label').innerText = 'Current: Archive';
+      showLoading();
       
       try {
         const contentView = document.getElementById('content-view');
@@ -559,67 +615,61 @@
         obj.width = '100%';
         obj.height = '100%';
         obj.style.border = 'none';
+        obj.id = 'archive-object';
         
         let loadTimeout = setTimeout(() => {
-          method3Failed = true;
-          if (!method1Failed) {
-            loadWithMethod1();
-          } else if (!method2Failed) {
-            loadWithMethod2();
-          } else if (!method4Failed) {
-            loadWithMethod4();
-          } else {
-            handleAllMethodsFailed();
+          if (attemptingLoad) {
+            handleMethodFailure('method3');
           }
-        }, 12000);
+        }, 15000);
         
         obj.onload = function() {
-          clearTimeout(loadTimeout);
-          hideLoading();
+          if (attemptingLoad) {
+            clearTimeout(loadTimeout);
+            setTimeout(() => {
+              try {
+                // Try to check if content loaded
+                const objDoc = obj.contentDocument || obj.contentWindow?.document;
+                if (objDoc && objDoc.body && objDoc.body.innerHTML.length > 100) {
+                  hideLoading();
+                  console.log("Archive method loaded successfully");
+                } else {
+                  handleMethodFailure('method3');
+                }
+              } catch (e) {
+                // Cross-origin - assume it worked
+                hideLoading();
+                console.log("Archive method loaded but can't check content (cross-origin)");
+              }
+            }, 2000);
+          }
         };
         
         obj.onerror = function() {
-          clearTimeout(loadTimeout);
-          method3Failed = true;
-          if (!method1Failed) {
-            loadWithMethod1();
-          } else if (!method2Failed) {
-            loadWithMethod2();
-          } else if (!method4Failed) {
-            loadWithMethod4();
-          } else {
-            handleAllMethodsFailed();
+          if (attemptingLoad) {
+            clearTimeout(loadTimeout);
+            handleMethodFailure('method3');
           }
         };
         
         contentView.appendChild(obj);
       } catch (error) {
-        method3Failed = true;
-        if (!method1Failed) {
-          loadWithMethod1();
-        } else if (!method2Failed) {
-          loadWithMethod2();
-        } else if (!method4Failed) {
-          loadWithMethod4();
-        } else {
-          handleAllMethodsFailed();
-        }
+        console.error("Error in archive method:", error);
+        handleMethodFailure('method3');
       }
     }
 
     function loadWithMethod4() {
+      attemptingLoad = true;
       currentMethod = 'method4';
       document.getElementById('loading-text').innerText = 'Loading via advanced proxy...';
       document.getElementById('method-label').innerText = 'Current: Advanced Proxy';
+      showLoading();
       
       const proxyServices = [
         {
           name: "Google Translate Proxy",
           getUrl: (url) => `https://translate.google.com/translate?sl=auto&tl=en&u=${encodeURIComponent(url)}`
-        },
-        {
-          name: "DeepL Translator",
-          getUrl: (url) => `https://www.deepl.com/translator#auto/en/${encodeURIComponent(url)}`
         },
         {
           name: "Archive.is",
@@ -629,11 +679,15 @@
           name: "Archive.today",
           getUrl: (url) => `https://archive.ph/${url}`
         },
+        {
+          name: "DeepL Translator",
+          getUrl: (url) => `https://www.deepl.com/translator#auto/en/${encodeURIComponent(url)}`
+        }
       ];
       
       function tryNextProxy(index) {
         if (index >= proxyServices.length) {
-          method4Failed = true;
+          methodsFailed.method4 = true;
           handleAllMethodsFailed();
           return;
         }
@@ -646,81 +700,70 @@
           contentView.innerHTML = '';
           contentView.style.display = 'block';
           
-          const obj = document.createElement('object');
-          obj.data = proxy.getUrl(currentUrl);
+          const obj = document.createElement('iframe'); // Changed to iframe for better compatibility
+          obj.src = proxy.getUrl(currentUrl);
           obj.width = '100%';
           obj.height = '100%';
           obj.style.border = 'none';
-          obj.type = 'text/html';
-          
-
           obj.id = 'proxy-object';
           
-
           let hasLoaded = false;
-          
           let loadTimeout = setTimeout(() => {
-            if (!hasLoaded) {
+            if (!hasLoaded && attemptingLoad) {
               console.log(`${proxy.name} timed out, trying next proxy`);
               tryNextProxy(index + 1);
             }
           }, 15000);
           
           obj.onload = function() {
-
-            hasLoaded = true;
-            clearTimeout(loadTimeout);
-  
-            setTimeout(() => {
-              hideLoading();
-              console.log(`Successfully loaded via ${proxy.name}`);
-            }, 500);
+            if (attemptingLoad) {
+              hasLoaded = true;
+              clearTimeout(loadTimeout);
+              
+              // Give it a moment to fully render
+              setTimeout(() => {
+                hideLoading();
+                console.log(`Successfully loaded via ${proxy.name}`);
+              }, 1000);
+            }
           };
           
-
-          obj.addEventListener('load', function() {
-            hasLoaded = true;
-            clearTimeout(loadTimeout);
-            hideLoading();
-            console.log(`Successfully loaded via ${proxy.name}`);
-          });
-          
           obj.onerror = function(e) {
-            console.error(`Error with ${proxy.name}:`, e);
-            if (!hasLoaded) {
+            if (attemptingLoad && !hasLoaded) {
+              console.error(`Error with ${proxy.name}:`, e);
               clearTimeout(loadTimeout);
               console.log(`${proxy.name} failed, trying next proxy`);
               tryNextProxy(index + 1);
             }
           };
           
-
+          // Content check fallback
           setTimeout(() => {
-            if (document.getElementById('proxy-object') === obj && !hasLoaded) {
+            if (document.getElementById('proxy-object') === obj && !hasLoaded && attemptingLoad) {
               try {
-                const objDoc = obj.contentDocument || obj.contentWindow?.document;
-                if (objDoc && objDoc.body && objDoc.body.innerHTML.length > 100) {
+                // For iframes, we can sometimes detect load this way
+                if (obj.contentWindow && obj.contentWindow.document) {
                   hasLoaded = true;
                   clearTimeout(loadTimeout);
                   hideLoading();
                   console.log(`Successfully loaded via ${proxy.name} (content check)`);
                 }
               } catch (e) {
-           
-                if (!hasLoaded) {
-                  hasLoaded = true;
-                  clearTimeout(loadTimeout);
-                  hideLoading();
-                  console.log(`Successfully loaded via ${proxy.name} (cross-origin)`);
-                }
+                // Cross-origin restrictions - assume it worked if it hasn't errored yet
+                hasLoaded = true;
+                clearTimeout(loadTimeout);
+                hideLoading();
+                console.log(`Successfully loaded via ${proxy.name} (cross-origin)`);
               }
             }
-          }, 5000);
+          }, 8000);
           
           contentView.appendChild(obj);
         } catch (error) {
           console.error(`Error setting up ${proxy.name}:`, error);
-          tryNextProxy(index + 1);
+          if (attemptingLoad) {
+            tryNextProxy(index + 1);
+          }
         }
       }
       
@@ -752,15 +795,20 @@
     }
     
     function switchMethod() {
-      showLoading();
-      if (currentMethod === 'method1') {
-        loadWithMethod2();
-      } else if (currentMethod === 'method2') {
-        loadWithMethod3();
-      } else if (currentMethod === 'method3') {
-        loadWithMethod4();
-      } else {
-        loadWithMethod1();
+      // Only switch if not currently switching
+      if (!attemptingLoad) {
+        showLoading();
+        attemptingLoad = true;
+        
+        if (currentMethod === 'method1') {
+          loadWithMethod2();
+        } else if (currentMethod === 'method2') {
+          loadWithMethod3();
+        } else if (currentMethod === 'method3') {
+          loadWithMethod4();
+        } else {
+          loadWithMethod1();
+        }
       }
     }
     
@@ -771,11 +819,9 @@
       document.querySelector('.back-btn-area').style.display = 'none';
       document.getElementById('url-input').value = '';
       document.getElementById('option-container').style.display = 'none';
+      hideLoading();
       
-      method1Failed = false;
-      method2Failed = false;
-      method3Failed = false;
-      method4Failed = false;
+      methodsFailed = { method1: false, method2: false, method3: false, method4: false };
       currentUrl = '';
       currentMethod = '';
     }
@@ -784,6 +830,7 @@
       if (e.data?.type === 'stealth-navigate' && typeof e.data.url === 'string') {
         currentUrl = e.data.url;
         showLoading();
+        attemptingLoad = true;
         
         if (currentMethod === 'method1') {
           loadWithMethod1();
