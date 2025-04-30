@@ -55,7 +55,7 @@
       max-width: 600px;
       width: 90%;
       position: relative;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem; /* Reduced margin */
     }
 
     #url-input {
@@ -79,7 +79,8 @@
     .go-btn {
       position: absolute;
       right: 8px;
-      top: 8px;
+      top: 50%;
+      transform: translateY(-50%);
       background-color: var(--accent);
       color: #fff;
       border: none;
@@ -92,6 +93,31 @@
 
     .go-btn:hover {
       background-color: #3e8e41;
+    }
+
+    .settings-container {
+      max-width: 600px;
+      width: 90%;
+      margin: 0 auto;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .settings-btn {
+      background-color: var(--light-green);
+      color: var(--text);
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .settings-btn:hover {
+      background-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
     .option-container {
@@ -200,29 +226,51 @@
 
     #method-switch {
       position: fixed;
-      top: 0;
-      right: 0;
+      top: 10px;
+      right: 10px;
+      background-color: var(--dark-bg);
+      color: var(--text);
+      border: 1px solid var(--light-green);
+      border-radius: 4px;
       width: 40px;
       height: 40px;
-      z-index: 9999;
       cursor: pointer;
       opacity: 0;
       transition: opacity 0.3s;
+      z-index: 999;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    #method-switch:hover {
+    #method-switch.show-dropdown .switch-box,
+    #method-switch:hover .switch-box {
+      display: flex;
       opacity: 1;
     }
 
-    #method-switch:hover .switch-box {
-      display: flex;
+    #method-switch:hover,
+    #method-switch.show-dropdown {
+      opacity: 1 !important;
+      background-color: var(--light-green);
+    }
+
+    .method-switch-area {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      z-index: 998;
+    }
+    
+    .method-switch-area:hover #method-switch {
+      opacity: 0.7;
     }
 
     .switch-box {
       display: none;
       position: absolute;
-      top: 40px;
-      right: 10px;
+      top: 45px;
+      right: 0;
       background-color: var(--dark-bg);
       border: 1px solid var(--light-green);
       border-radius: 4px;
@@ -230,6 +278,8 @@
       flex-direction: column;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       min-width: 180px;
+      opacity: 0;
+      transition: opacity 0.2s;
     }
 
     .switch-btn {
@@ -251,8 +301,9 @@
       font-size: 1.5rem;
       color: var(--accent);
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .back-btn-area {
@@ -311,6 +362,289 @@
       font-size: 0.9em;
       opacity: 0.8;
     }
+    
+    /* New styles for the sources management */
+    .sources-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .sources-container {
+      background-color: var(--dark-bg);
+      border: 1px solid var(--light-green);
+      border-radius: 8px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    
+    .sources-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--light-green);
+      padding-bottom: 10px;
+    }
+    
+    .sources-close {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    
+    .sources-close:hover {
+      color: var(--accent);
+    }
+    
+    .source-item {
+      background-color: rgba(0,0,0,0.2);
+      border: 1px solid var(--light-green);
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+    
+    .source-item:hover {
+      border-color: var(--accent);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+    
+    .source-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .source-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+    
+    .source-toggle {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .source-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #444;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: var(--accent);
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    .source-speed {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    
+    .speed-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #444;
+    }
+    
+    .speed-fast .speed-dot:nth-child(1),
+    .speed-fast .speed-dot:nth-child(2),
+    .speed-fast .speed-dot:nth-child(3) {
+      background-color: #4CAF50;
+    }
+    
+    .speed-medium .speed-dot:nth-child(1),
+    .speed-medium .speed-dot:nth-child(2) {
+      background-color: #FFC107;
+    }
+    
+    .speed-slow .speed-dot:nth-child(1) {
+      background-color: #F44336;
+    }
+    
+    .source-description {
+      font-size: 0.9rem;
+      margin: 10px 0;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+    
+    .add-source-section {
+      margin-top: 30px;
+      border-top: 1px solid var(--light-green);
+      padding-top: 20px;
+    }
+    
+    .add-source-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .form-group label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 10px;
+      background-color: rgba(0,0,0,0.2);
+      border: 1px solid var(--light-green);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'Consolas', monospace;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    
+    .template-help {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-top: 3px;
+    }
+    
+    .btn-add-source {
+      padding: 10px;
+      background-color: var(--light-green);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+      margin-top: 10px;
+      align-self: flex-start;
+    }
+    
+    .btn-add-source:hover {
+      background-color: var(--accent);
+    }
+    
+    .save-settings {
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    
+    .save-settings:hover {
+      background-color: #3e8e41;
+    }
+    
+    .reset-settings {
+      margin-left: 10px;
+      padding: 10px 15px;
+      background-color: #777;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    
+    .reset-settings:hover {
+      background-color: #555;
+    }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--accent);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 10000;
+    }
+    
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .custom-proxy-label {
+      display: inline-flex;
+      align-items: center;
+      background-color: #2d664680;
+      border-radius: 4px;
+      padding: 2px 6px;
+      margin-left: 8px;
+      font-size: 0.7rem;
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
@@ -322,6 +656,12 @@
       <input type="text" id="url-input" placeholder="Where to? (e.g. example.com)" autofocus 
         onkeydown="if(event.key==='Enter') processUrl()">
       <button class="go-btn" onclick="processUrl()">GO</button>
+    </div>
+
+    <div class="settings-container">
+      <button class="settings-btn" onclick="toggleSourcesModal()">
+        <i class="fas fa-cog"></i> Manage Sources
+      </button>
     </div>
     
     <div id="option-container" class="option-container">
@@ -358,17 +698,71 @@
   
   <div id="content-view"></div>
   
-  <div id="method-switch">
-    <i class="fas fa-cog corner-icon"></i>
-    <div class="switch-box">
-      <button class="switch-btn" onclick="switchMethod()">Try next method</button>
-      <p class="method-label" id="method-label">Current: Direct Method</p>
+  <div class="method-switch-area">
+    <div id="method-switch">
+      <i class="fas fa-cog corner-icon"></i>
+      <div class="switch-box">
+        <button class="switch-btn" onclick="switchMethod()">Try next method</button>
+        <p class="method-label" id="method-label">Current: Direct Method</p>
+      </div>
     </div>
   </div>
   
   <div class="back-btn-area">
     <button id="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
   </div>
+
+  <div id="sources-modal" class="sources-modal">
+    <div class="sources-container">
+      <div class="sources-header">
+        <h2>Manage Proxy Sources</h2>
+        <button class="sources-close" onclick="toggleSourcesModal()">&times;</button>
+      </div>
+      
+      <div id="sources-list">
+        <!-- Sources will be dynamically populated here -->
+      </div>
+      
+      <div class="add-source-section">
+        <h3>Add Custom Proxy Source</h3>
+        <div class="add-source-form">
+          <div class="form-group">
+            <label for="source-name">Name</label>
+            <input type="text" id="source-name" placeholder="e.g. My Custom Proxy">
+          </div>
+          
+          <div class="form-group">
+            <label for="source-description">Description</label>
+            <textarea id="source-description" rows="2" placeholder="Brief description of this proxy service"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="source-url-template">URL Template</label>
+            <input type="text" id="source-url-template" placeholder="e.g. https://myproxy.com/${url}">
+            <p class="template-help">Use ${url} as a placeholder for the target URL</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="source-speed">Estimated Speed</label>
+            <select id="source-speed">
+              <option value="fast">Fast</option>
+              <option value="medium" selected>Medium</option>
+              <option value="slow">Slow</option>
+            </select>
+          </div>
+          
+          <button class="btn-add-source" onclick="addCustomSource()">Add Source</button>
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px; text-align: center;">
+        <button class="save-settings" onclick="saveSettings()">Save Settings</button>
+        <button class="reset-settings" onclick="resetSettings()">Reset to Default</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="notification" id="notification"></div>
 
   <script>
     let currentUrl = '';
@@ -378,10 +772,99 @@
     let isCurrentlyLoading = false;
     let attemptingLoad = false;
     
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Enter' && document.getElementById('option-container').style.display === 'flex') {
-        loadWithPreference('general');
+    // Default proxy sources configuration
+    let proxySources = [
+      {
+        id: 'direct',
+        name: 'Direct Method',
+        description: 'Attempts to load the website directly in an embedded frame. Fastest method but may not work for sites that block embedding.',
+        urlTemplate: '{direct}',
+        speed: 'fast',
+        enabled: true,
+        isDefault: true,
+        method: 'method1'
+      },
+      {
+        id: 'allorigins',
+        name: 'AllOrigins API',
+        description: 'Uses a CORS proxy to fetch website content. Good for text-based sites but may have limitations with complex websites.',
+        urlTemplate: '{proxy}',
+        speed: 'medium',
+        enabled: true,
+        isDefault: true,
+        method: 'method2'
+      },
+      {
+        id: 'archive',
+        name: 'Wayback Machine',
+        description: 'Loads the most recent archived version of the website from the Internet Archive. Useful for sites that block other proxy methods.',
+        urlTemplate: 'https://web.archive.org/web/2/${url}',
+        speed: 'slow',
+        enabled: true,
+        isDefault: true,
+        method: 'method3'
+      },
+      {
+        id: '12ft',
+        name: '12ft.io',
+        description: 'Removes paywalls and bypasses site restrictions. Works well for news sites and articles behind subscription walls.',
+        urlTemplate: 'https://12ft.io/${url}',
+        speed: 'medium',
+        enabled: true,
+        isDefault: true,
+        method: 'method4_0'
+      },
+      {
+        id: 'archive-today',
+        name: 'Archive.today',
+        description: 'Web archiving service that takes snapshots of websites. Good for preserving content that might disappear.',
+        urlTemplate: 'https://archive.today/${url}',
+        speed: 'slow',
+        enabled: true,
+        isDefault: true,
+        method: 'method4_2'
       }
+    ];
+    
+    // Load saved settings from cookies
+    loadSettings();
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize the sources list
+      renderSourcesList();
+      
+      // Setup method switch behavior
+      const methodSwitch = document.getElementById('method-switch');
+      const switchBox = methodSwitch.querySelector('.switch-box');
+      
+      // Settings icon click handler - toggle dropdown
+      methodSwitch.addEventListener('click', function(e) {
+        // Don't toggle if clicking inside the dropdown
+        if (e.target.closest('.switch-box')) return;
+        
+        methodSwitch.classList.toggle('show-dropdown');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('#method-switch')) {
+          methodSwitch.classList.remove('show-dropdown');
+        }
+      });
+      
+      // When content is loaded, make sure settings icon appears when hovered
+      document.addEventListener('mousemove', function(e) {
+        const methodSwitchArea = document.querySelector('.method-switch-area');
+        if (!methodSwitchArea) return;
+        
+        const rect = methodSwitchArea.getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right && 
+            e.clientY >= rect.top && e.clientY <= rect.bottom) {
+          methodSwitch.style.opacity = '0.7';
+        } else if (!methodSwitch.classList.contains('show-dropdown')) {
+          methodSwitch.style.opacity = '';
+        }
+      });
     });
     
     function processUrl() {
@@ -406,11 +889,22 @@
       document.getElementById('landing').style.display = 'none';
       document.getElementById('footer').style.display = 'none';
       document.querySelector('.back-btn-area').style.display = 'block';
+      document.getElementById('method-switch').style.opacity = '0';
       
-      if (type === 'general') {
-        loadWithMethod2();
+      // Get first enabled method
+      const firstEnabledSource = proxySources.find(source => source.enabled);
+      if (firstEnabledSource) {
+        const methodName = firstEnabledSource.method.split('_')[0]; // Extract base method name
+        switch(methodName) {
+          case 'method1': loadWithMethod1(); break;
+          case 'method2': loadWithMethod2(); break;
+          case 'method3': loadWithMethod3(); break;
+          case 'method4': loadWithMethod4(); break;
+          default: loadWithMethod1(); // Fallback
+        }
       } else {
-        loadWithMethod1();
+        // If no methods are enabled, show error
+        handleAllMethodsFailed();
       }
     }
     
@@ -418,6 +912,9 @@
       const loadingScreen = document.getElementById('loading-screen');
       loadingScreen.style.display = 'flex';
       isCurrentlyLoading = true;
+      
+      // Enable "Try Next Method" button
+      document.querySelector('.next-method-btn').disabled = false;
     }
     
     function hideLoading() {
@@ -433,32 +930,29 @@
         methodsFailed[method] = true;
         attemptingLoad = false;
         
-        // Only auto-switch if all methods haven't been tried yet
-        const allMethodsTried = Object.values(methodsFailed).every(failed => failed);
-        if (!allMethodsTried) {
-          if (!methodsFailed.method1) {
-            loadWithMethod1();
-          } else if (!methodsFailed.method2) {
-            loadWithMethod2();
-          } else if (!methodsFailed.method3) {
-            loadWithMethod3();
-          } else if (!methodsFailed.method4) {
-            loadWithMethod4();
-          } else {
-            handleAllMethodsFailed();
-          }
-        } else {
-          handleAllMethodsFailed();
-        }
+        // Try next enabled method in sequence
+        switchMethod(true);
       }
     }
     
-    function loadWithMethod1() {
+    function loadWithMethod1(keepDropdownVisible = false) {
       attemptingLoad = true;
       currentMethod = 'method1';
       document.getElementById('loading-text').innerText = 'Loading via direct method...';
       document.getElementById('method-label').innerText = 'Current: Direct Method';
       showLoading();
+      
+      if (!keepDropdownVisible) {
+        document.getElementById('method-switch').classList.remove('show-dropdown');
+      }
+      
+      // Check if this method is enabled
+      const directSource = proxySources.find(s => s.method === 'method1');
+      if (!directSource || !directSource.enabled) {
+        console.log("Direct method disabled, skipping");
+        handleMethodFailure('method1');
+        return;
+      }
       
       try {
         const contentView = document.getElementById('content-view');
@@ -516,12 +1010,24 @@
       }
     }
     
-    function loadWithMethod2() {
+    function loadWithMethod2(keepDropdownVisible = false) {
       attemptingLoad = true;
       currentMethod = 'method2';
       document.getElementById('loading-text').innerText = 'Loading via proxy method...';
       document.getElementById('method-label').innerText = 'Current: Proxy API';
       showLoading();
+      
+      if (!keepDropdownVisible) {
+        document.getElementById('method-switch').classList.remove('show-dropdown');
+      }
+      
+      // Check if this method is enabled
+      const proxySource = proxySources.find(s => s.method === 'method2');
+      if (!proxySource || !proxySource.enabled) {
+        console.log("Proxy API method disabled, skipping");
+        handleMethodFailure('method2');
+        return;
+      }
       
       try {
         const contentView = document.getElementById('content-view');
@@ -597,12 +1103,24 @@
       }
     }
     
-    function loadWithMethod3() {
+    function loadWithMethod3(keepDropdownVisible = false) {
       attemptingLoad = true;
       currentMethod = 'method3';
       document.getElementById('loading-text').innerText = 'Loading via archive method...';
       document.getElementById('method-label').innerText = 'Current: Archive';
       showLoading();
+      
+      if (!keepDropdownVisible) {
+        document.getElementById('method-switch').classList.remove('show-dropdown');
+      }
+      
+      // Check if this method is enabled
+      const archiveSource = proxySources.find(s => s.method === 'method3');
+      if (!archiveSource || !archiveSource.enabled) {
+        console.log("Archive method disabled, skipping");
+        handleMethodFailure('method3');
+        return;
+      }
       
       try {
         const contentView = document.getElementById('content-view');
@@ -610,7 +1128,7 @@
         contentView.style.display = 'block';
         
         const obj = document.createElement('object');
-        const archiveUrl = `https://web.archive.org/web/2/${currentUrl}`;
+        const archiveUrl = archiveSource.urlTemplate.replace('${url}', currentUrl);
         obj.data = archiveUrl;
         obj.width = '100%';
         obj.height = '100%';
@@ -659,49 +1177,46 @@
       }
     }
 
-    function loadWithMethod4() {
+    function loadWithMethod4(keepDropdownVisible = false) {
       attemptingLoad = true;
       currentMethod = 'method4';
       document.getElementById('loading-text').innerText = 'Loading via advanced proxy...';
       document.getElementById('method-label').innerText = 'Current: Advanced Proxy';
       showLoading();
       
-      const proxyServices = [
-        {
-          name: "Google Translate Proxy",
-          getUrl: (url) => `https://translate.google.com/translate?sl=auto&tl=en&u=${encodeURIComponent(url)}`
-        },
-        {
-          name: "Archive.is",
-          getUrl: (url) => `https://archive.is/${url}`
-        },
-        {
-          name: "Archive.today",
-          getUrl: (url) => `https://archive.ph/${url}`
-        },
-        {
-          name: "DeepL Translator",
-          getUrl: (url) => `https://www.deepl.com/translator#auto/en/${encodeURIComponent(url)}`
-        }
-      ];
+      if (!keepDropdownVisible) {
+        document.getElementById('method-switch').classList.remove('show-dropdown');
+      }
+      
+      // Get enabled method4 sources
+      const method4Sources = proxySources.filter(s => 
+        s.method.startsWith('method4_') && s.enabled
+      );
+      
+      if (method4Sources.length === 0) {
+        console.log("No advanced proxy methods enabled, skipping");
+        handleMethodFailure('method4');
+        return;
+      }
       
       function tryNextProxy(index) {
-        if (index >= proxyServices.length) {
+        if (index >= method4Sources.length) {
           methodsFailed.method4 = true;
           handleAllMethodsFailed();
           return;
         }
         
-        const proxy = proxyServices[index];
+        const proxy = method4Sources[index];
         document.getElementById('loading-text').innerText = `Loading via ${proxy.name}...`;
+        document.getElementById('method-label').innerText = `Current: ${proxy.name}`;
         
         try {
           const contentView = document.getElementById('content-view');
           contentView.innerHTML = '';
           contentView.style.display = 'block';
           
-          const obj = document.createElement('iframe'); // Changed to iframe for better compatibility
-          obj.src = proxy.getUrl(currentUrl);
+          const obj = document.createElement('iframe');
+          obj.src = proxy.urlTemplate.replace('${url}', currentUrl);
           obj.width = '100%';
           obj.height = '100%';
           obj.style.border = 'none';
@@ -794,20 +1309,59 @@
       `;
     }
     
-    function switchMethod() {
-      // Only switch if not currently switching
-      if (!attemptingLoad) {
-        showLoading();
-        attemptingLoad = true;
-        
-        if (currentMethod === 'method1') {
-          loadWithMethod2();
-        } else if (currentMethod === 'method2') {
-          loadWithMethod3();
-        } else if (currentMethod === 'method3') {
-          loadWithMethod4();
+    function switchMethod(fromFailure = false) {
+      // Keep dropdown visible if user manually clicked
+      const keepDropdownVisible = !fromFailure;
+      
+      // Cancel current load attempt
+      attemptingLoad = false;
+      
+      // Find next enabled method
+      const methods = ['method1', 'method2', 'method3', 'method4'];
+      const currentIndex = methods.indexOf(currentMethod.split('_')[0]); // handle method4_x format
+      
+      // If we're switching due to failure, start from current index + 1
+      // If user manually requested, start from current index + 1, and wrap around
+      let nextIndex = (currentIndex + 1) % methods.length;
+      let startIndex = nextIndex;
+      let foundMethod = false;
+      
+      do {
+        const method = methods[nextIndex];
+        // For method4, check if any submethod is enabled
+        if (method === 'method4') {
+          const method4Sources = proxySources.filter(s => 
+            s.method.startsWith('method4_') && s.enabled
+          );
+          if (method4Sources.length > 0) {
+            loadWithMethod4(keepDropdownVisible);
+            foundMethod = true;
+            break;
+          }
         } else {
-          loadWithMethod1();
+          // For other methods, check if that specific method is enabled
+          const source = proxySources.find(s => s.method === method && s.enabled);
+          if (source) {
+            switch(method) {
+              case 'method1': loadWithMethod1(keepDropdownVisible); break;
+              case 'method2': loadWithMethod2(keepDropdownVisible); break;
+              case 'method3': loadWithMethod3(keepDropdownVisible); break;
+            }
+            foundMethod = true;
+            break;
+          }
+        }
+        
+        nextIndex = (nextIndex + 1) % methods.length;
+      } while (nextIndex !== startIndex);
+      
+      if (!foundMethod) {
+        // If from failure and no more methods, show error
+        if (fromFailure) {
+          handleAllMethodsFailed();
+        } else {
+          // If manual switch and no other methods, show notification
+          showNotification("No other enabled methods available");
         }
       }
     }
@@ -819,6 +1373,8 @@
       document.querySelector('.back-btn-area').style.display = 'none';
       document.getElementById('url-input').value = '';
       document.getElementById('option-container').style.display = 'none';
+      document.getElementById('method-switch').style.opacity = '0';
+      document.getElementById('method-switch').classList.remove('show-dropdown');
       hideLoading();
       
       methodsFailed = { method1: false, method2: false, method3: false, method4: false };
@@ -838,7 +1394,7 @@
           loadWithMethod2();
         } else if (currentMethod === 'method3') {
           loadWithMethod3();
-        } else if (currentMethod === 'method4') {
+        } else if (currentMethod.startsWith('method4')) {
           loadWithMethod4();
         } else {
           if (contentType === 'general') {
@@ -849,6 +1405,239 @@
         }
       }
     });
+    
+    // Sources management functions
+    function toggleSourcesModal() {
+      const modal = document.getElementById('sources-modal');
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+      
+      // Re-render the sources list when opening
+      if (modal.style.display === 'flex') {
+        renderSourcesList();
+      }
+    }
+    
+    function renderSourcesList() {
+      const sourcesList = document.getElementById('sources-list');
+      sourcesList.innerHTML = '';
+      
+      proxySources.forEach(source => {
+        const sourceItem = document.createElement('div');
+        sourceItem.className = 'source-item';
+        
+        const speedClass = source.speed === 'fast' ? 'speed-fast' : 
+                          source.speed === 'medium' ? 'speed-medium' : 'speed-slow';
+        
+        // Determine if this is a custom source
+        const isCustom = !source.isDefault;
+        
+        sourceItem.innerHTML = `
+          <div class="source-header">
+            <h3 class="source-title">
+              ${source.name}
+              ${isCustom ? `<span class="custom-proxy-label">Custom</span>` : ''}
+            </h3>
+            <label class="source-toggle">
+              <input type="checkbox" ${source.enabled ? 'checked' : ''} 
+                onchange="toggleSource('${source.id}', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="source-speed ${speedClass}">
+            Speed: 
+            <span class="speed-dot"></span>
+            <span class="speed-dot"></span>
+            <span class="speed-dot"></span>
+          </div>
+          <p class="source-description">${source.description}</p>
+          ${isCustom ? `
+            <button class="switch-btn" onclick="removeCustomSource('${source.id}')" 
+              style="background-color: #d32f2f; margin-top: 10px;">
+              <i class="fas fa-trash"></i> Remove
+            </button>
+          ` : ''}
+        `;
+        
+        sourcesList.appendChild(sourceItem);
+      });
+    }
+    
+    function toggleSource(sourceId, enabled) {
+      const source = proxySources.find(s => s.id === sourceId);
+      if (source) {
+        source.enabled = enabled;
+      }
+    }
+    
+    function addCustomSource() {
+      const name = document.getElementById('source-name').value.trim();
+      const description = document.getElementById('source-description').value.trim();
+      const urlTemplate = document.getElementById('source-url-template').value.trim();
+      const speed = document.getElementById('source-speed').value;
+      
+      if (!name || !urlTemplate) {
+        showNotification("Please provide a name and URL template");
+        return;
+      }
+      
+      if (!urlTemplate.includes('${url}')) {
+        showNotification("URL template must contain ${url} placeholder");
+        return;
+      }
+      
+      // Generate a unique ID
+      const id = 'custom_' + Date.now();
+      
+      // Find the highest method4 index
+      const method4Sources = proxySources.filter(s => s.method.startsWith('method4_'));
+      let highestIndex = -1;
+      method4Sources.forEach(s => {
+        const index = parseInt(s.method.split('_')[1]);
+        if (!isNaN(index) && index > highestIndex) {
+          highestIndex = index;
+        }
+      });
+      
+      const newMethod = `method4_${highestIndex + 1}`;
+      
+      const newSource = {
+        id,
+        name,
+        description: description || `Custom proxy service using ${urlTemplate}`,
+        urlTemplate,
+        speed,
+        enabled: true,
+        isDefault: false,
+        method: newMethod
+      };
+      
+      proxySources.push(newSource);
+      renderSourcesList();
+      
+      // Clear form
+      document.getElementById('source-name').value = '';
+      document.getElementById('source-description').value = '';
+      document.getElementById('source-url-template').value = '';
+      document.getElementById('source-speed').value = 'medium';
+      
+      showNotification("Custom source added successfully");
+    }
+    
+    function removeCustomSource(sourceId) {
+      const index = proxySources.findIndex(s => s.id === sourceId);
+      if (index !== -1 && !proxySources[index].isDefault) {
+        proxySources.splice(index, 1);
+        renderSourcesList();
+        showNotification("Custom source removed");
+      }
+    }
+    
+    function saveSettings() {
+      // Save to cookie
+      const sourceSettings = {
+        sources: proxySources,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      // Set cookie to expire in 365 days
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 365);
+      
+      document.cookie = `webNavigatorSettings=${encodeURIComponent(JSON.stringify(sourceSettings))};expires=${expiryDate.toUTCString()};path=/;SameSite=Lax`;
+      
+      showNotification("Settings saved successfully");
+      toggleSourcesModal();
+    }
+    
+    function resetSettings() {
+      if (confirm("Reset all sources to default settings?")) {
+        // Reset to default sources
+        proxySources = [
+          {
+            id: 'direct',
+            name: 'Direct Method',
+            description: 'Attempts to load the website directly in an embedded frame. Fastest method but may not work for sites that block embedding.',
+            urlTemplate: '{direct}',
+            speed: 'fast',
+            enabled: true,
+            isDefault: true,
+            method: 'method1'
+          },
+          {
+            id: 'allorigins',
+            name: 'AllOrigins API',
+            description: 'Uses a CORS proxy to fetch website content. Good for text-based sites but may have limitations with complex websites.',
+            urlTemplate: '{proxy}',
+            speed: 'medium',
+            enabled: true,
+            isDefault: true,
+            method: 'method2'
+          },
+          {
+            id: 'archive',
+            name: 'Wayback Machine',
+            description: 'Loads the most recent archived version of the website from the Internet Archive. Useful for sites that block other proxy methods.',
+            urlTemplate: 'https://web.archive.org/web/2/${url}',
+            speed: 'slow',
+            enabled: true,
+            isDefault: true,
+            method: 'method3'
+          },
+          {
+            id: '12ft',
+            name: '12ft.io',
+            description: 'Removes paywalls and bypasses site restrictions. Works well for news sites and articles behind subscription walls.',
+            urlTemplate: 'https://12ft.io/${url}',
+            speed: 'medium',
+            enabled: true,
+            isDefault: true,
+            method: 'method4_0'
+          },
+          {
+            id: 'archive-today',
+            name: 'Archive.today',
+            description: 'Web archiving service that takes snapshots of websites. Good for preserving content that might disappear.',
+            urlTemplate: 'https://archive.today/${url}',
+            speed: 'slow',
+            enabled: true,
+            isDefault: true,
+            method: 'method4_2'
+          }
+        ];
+        
+        // Clear cookie
+        document.cookie = "webNavigatorSettings=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+        
+        renderSourcesList();
+        showNotification("Settings reset to default");
+      }
+    }
+    
+    function loadSettings() {
+      // Try to load from cookie
+      const cookieMatch = document.cookie.match(/webNavigatorSettings=([^;]+)/);
+      if (cookieMatch) {
+        try {
+          const savedSettings = JSON.parse(decodeURIComponent(cookieMatch[1]));
+          if (savedSettings && Array.isArray(savedSettings.sources)) {
+            proxySources = savedSettings.sources;
+            console.log("Loaded sources from cookie:", proxySources.length);
+          }
+        } catch (e) {
+          console.error("Error parsing saved settings:", e);
+        }
+      }
+    }
+    
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
   </script>
 </body>
 </html>
