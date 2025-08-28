@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Main</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script>
   <style>
     :root {
       --dark-green: #1a3c2a;
@@ -120,44 +121,80 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
-    .option-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 1rem;
-    }
-    
-    .options {
+    /* Theme picker */
+    .theme-actions {
+      margin-top: 10px;
       display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
+      gap: 10px;
       justify-content: center;
-      margin-top: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
     }
-    
-    .option-box {
+
+    .theme-btn {
+      background-color: var(--light-green);
+      color: var(--text);
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-btn:hover {
+      background-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .theme-picker {
+      margin-top: 10px;
+      display: none;
       background-color: rgba(0,0,0,0.2);
       border: 1px solid var(--light-green);
-      border-radius: 8px;
-      padding: 25px;
-      width: 180px;
-      text-align: center;
+      border-radius: 6px;
+      padding: 12px 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .theme-picker.show { display: inline-block; }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(6, 28px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: 2px solid rgba(255,255,255,0.5);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      position: relative;
+      transition: transform 0.15s ease;
     }
-    
-    .option-box:hover {
-      border-color: var(--accent);
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+
+    .swatch:hover { transform: translateY(-2px); }
+
+    .swatch.selected::after {
+      content: "\2713";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -56%);
+      font-size: 14px;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
     }
-    
-    .option-box i {
-      font-size: 2rem;
-      margin-bottom: 10px;
-      color: var(--accent);
-    }
+
+  /* content-type selection removed */
 
     footer {
       padding: 15px;
@@ -662,25 +699,17 @@
       <button class="settings-btn" onclick="toggleSourcesModal()">
         <i class="fas fa-cog"></i> Manage Sources
       </button>
+        <div class="theme-actions">
+          <button class="theme-btn" onclick="toggleThemePicker()">
+            <i class="fas fa-palette"></i> Theme
+          </button>
+          <div id="theme-picker" class="theme-picker" aria-label="Theme picker">
+            <div id="theme-swatches" class="swatches"></div>
+          </div>
+        </div>
     </div>
     
-    <div id="option-container" class="option-container">
-      <p>What type of content?</p>
-      <div class="options">
-        <div class="option-box" onclick="loadWithPreference('news')">
-          <i class="fas fa-newspaper"></i>
-          <h3>News and Articles</h3>
-        </div>
-        <div class="option-box" onclick="loadWithPreference('gaming')">
-          <i class="fas fa-gamepad"></i>
-          <h3>Gaming</h3>
-        </div>
-        <div class="option-box" onclick="loadWithPreference('general')">
-          <i class="fas fa-globe-americas"></i>
-          <h3>General Use</h3>
-        </div>
-      </div>
-    </div>
+  <!-- content-type selection removed -->
   </div>
   
   <footer id="footer">
@@ -765,6 +794,78 @@
   <div class="notification" id="notification"></div>
 
   <script>
+  // Appwrite settings (match example style)
+  const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+  const APPWRITE_PROJECT  = '67e1ffec00355982855c';
+  const FUNCTION_ID       = '68a52aea00268f1a7ffd';
+
+    // Theme definitions (ROYGBP)
+    const THEMES = {
+      red: {
+        name: 'Red',
+        vars: {
+          '--dark-green': '#3b0f0f',
+          '--light-green': '#7a1f1f',
+          '--accent': '#E53935',
+          '--text': '#e0e0e0',
+          '--dark-bg': '#1a0505'
+        }
+      },
+      orange: {
+        name: 'Orange',
+        vars: {
+          '--dark-green': '#3a2408',
+          '--light-green': '#8a4b08',
+          '--accent': '#FB8C00',
+          '--text': '#e0e0e0',
+          '--dark-bg': '#1b0e03'
+        }
+      },
+      yellow: {
+        name: 'Yellow',
+        vars: {
+          '--dark-green': '#35320b',
+          '--light-green': '#7a6f09',
+          '--accent': '#FBC02D',
+          '--text': '#e0e0e0',
+          '--dark-bg': '#1a1805'
+        }
+      },
+      green: {
+        name: 'Green',
+        vars: {
+          '--dark-green': '#1a3c2a',
+          '--light-green': '#2d6646',
+          '--accent': '#4CAF50',
+          '--text': '#e0e0e0',
+          '--dark-bg': '#0a1f15'
+        }
+      },
+      blue: {
+        name: 'Blue',
+        vars: {
+          '--dark-green': '#0b243b',
+          '--light-green': '#1f4a7a',
+          '--accent': '#2196F3',
+          '--text': '#e0e0e0',
+          '--dark-bg': '#05101a'
+        }
+      },
+      purple: {
+        name: 'Purple',
+        vars: {
+          '--dark-green': '#2a103b',
+          '--light-green': '#5a2a7a',
+          '--accent': '#9C27B0',
+          '--text': '#e0e0e0',
+          '--dark-bg': '#12051a'
+        }
+      }
+    };
+
+    const THEME_COOKIE = 'webNavigatorTheme';
+    let currentTheme = 'green';
+
     let currentUrl = '';
     let currentMethod = '';
     let contentType = '';
@@ -803,35 +904,25 @@
         enabled: true,
         isDefault: true,
         method: 'method3'
-      },
-      {
-        id: '12ft',
-        name: '12ft.io',
-        description: 'Removes paywalls and bypasses site restrictions. Works well for news sites and articles behind subscription walls.',
-        urlTemplate: 'https://12ft.io/${url}',
-        speed: 'medium',
-        enabled: true,
-        isDefault: true,
-        method: 'method4_0'
-      },
-      {
-        id: 'archive-today',
-        name: 'Archive.today',
-        description: 'Web archiving service that takes snapshots of websites. Good for preserving content that might disappear.',
-        urlTemplate: 'https://archive.today/${url}',
-        speed: 'slow',
-        enabled: true,
-        isDefault: true,
-        method: 'method4_2'
       }
     ];
     
-    // Load saved settings from cookies
-    loadSettings();
+  // Load saved settings from cookies
+  loadSettings();
+  // Ensure built-in Appwrite Proxy exists as method4 (enabled by default)
+  ensureAppwriteSourceExists();
     
-    document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
       // Initialize the sources list
       renderSourcesList();
+      // Build theme swatches and apply saved theme
+      buildThemeSwatches();
+      const savedTheme = readThemeFromCookie();
+      if (savedTheme && THEMES[savedTheme]) {
+        applyTheme(savedTheme);
+      } else {
+        applyTheme('green');
+      }
       
       // Setup method switch behavior
       const methodSwitch = document.getElementById('method-switch');
@@ -849,6 +940,10 @@
       document.addEventListener('click', function(e) {
         if (!e.target.closest('#method-switch')) {
           methodSwitch.classList.remove('show-dropdown');
+        }
+        if (!e.target.closest('.theme-actions')) {
+          const tp = document.getElementById('theme-picker');
+          if (tp) tp.classList.remove('show');
         }
       });
       
@@ -875,9 +970,8 @@
       if (!/^https?:\/\//i.test(currentUrl)) {
         currentUrl = 'https://' + currentUrl.replace(/^\/+/, '');
       }
-      
-      document.getElementById('option-container').style.display = 'flex';
-      document.querySelector('.option-container').scrollIntoView({ behavior: 'smooth' });
+  // Immediately start navigation using methods (skip content-type selection)
+  loadWithPreference('general');
     }
     
     function loadWithPreference(type) {
@@ -1177,7 +1271,7 @@
       }
     }
 
-    function loadWithMethod4(keepDropdownVisible = false) {
+  function loadWithMethod4(keepDropdownVisible = false) {
       attemptingLoad = true;
       currentMethod = 'method4';
       document.getElementById('loading-text').innerText = 'Loading via advanced proxy...';
@@ -1215,13 +1309,13 @@
           contentView.innerHTML = '';
           contentView.style.display = 'block';
           
-          const obj = document.createElement('iframe');
-          obj.src = proxy.urlTemplate.replace('${url}', currentUrl);
-          obj.width = '100%';
-          obj.height = '100%';
-          obj.style.border = 'none';
-          obj.id = 'proxy-object';
-          
+          const frame = document.createElement('iframe');
+          frame.width = '100%';
+          frame.height = '100%';
+          frame.style.border = 'none';
+          frame.id = 'proxy-object';
+          contentView.appendChild(frame);
+
           let hasLoaded = false;
           let loadTimeout = setTimeout(() => {
             if (!hasLoaded && attemptingLoad) {
@@ -1229,51 +1323,70 @@
               tryNextProxy(index + 1);
             }
           }, 15000);
-          
-          obj.onload = function() {
-            if (attemptingLoad) {
-              hasLoaded = true;
-              clearTimeout(loadTimeout);
-              
-              // Give it a moment to fully render
-              setTimeout(() => {
-                hideLoading();
-                console.log(`Successfully loaded via ${proxy.name}`);
-              }, 1000);
-            }
-          };
-          
-          obj.onerror = function(e) {
-            if (attemptingLoad && !hasLoaded) {
-              console.error(`Error with ${proxy.name}:`, e);
-              clearTimeout(loadTimeout);
-              console.log(`${proxy.name} failed, trying next proxy`);
-              tryNextProxy(index + 1);
-            }
-          };
-          
-          // Content check fallback
-          setTimeout(() => {
-            if (document.getElementById('proxy-object') === obj && !hasLoaded && attemptingLoad) {
-              try {
-                // For iframes, we can sometimes detect load this way
-                if (obj.contentWindow && obj.contentWindow.document) {
-                  hasLoaded = true;
-                  clearTimeout(loadTimeout);
-                  hideLoading();
-                  console.log(`Successfully loaded via ${proxy.name} (content check)`);
-                }
-              } catch (e) {
-                // Cross-origin restrictions - assume it worked if it hasn't errored yet
+
+          // Special handling for Appwrite Proxy source
+          const isAppwrite = proxy.id === 'appwrite-proxy' || proxy.urlTemplate === '{appwrite}';
+          if (isAppwrite) {
+            fetchViaAppwrite(currentUrl).then(html => {
+              if (!attemptingLoad) return;
+              if (!html || html.length < 100) {
+                clearTimeout(loadTimeout);
+                console.log('Appwrite proxy returned minimal content, trying next');
+                tryNextProxy(index + 1);
+                return;
+              }
+              const baseHref = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+              html = html.replace(/<head.*?>/i, m => m + '<base href="' + baseHref + '">');
+              frame.onload = function() {
                 hasLoaded = true;
                 clearTimeout(loadTimeout);
                 hideLoading();
-                console.log(`Successfully loaded via ${proxy.name} (cross-origin)`);
+              };
+              frame.srcdoc = html;
+              setTimeout(() => {
+                if (attemptingLoad && !hasLoaded) {
+                  hasLoaded = true;
+                  clearTimeout(loadTimeout);
+                  hideLoading();
+                }
+              }, 3000);
+            }).catch(err => {
+              console.warn('Appwrite proxy failed:', err);
+              clearTimeout(loadTimeout);
+              tryNextProxy(index + 1);
+            });
+          } else {
+            // Generic URL-template iframe path
+            frame.src = proxy.urlTemplate.replace('${url}', currentUrl);
+            frame.onload = function() {
+              if (attemptingLoad) {
+                hasLoaded = true;
+                clearTimeout(loadTimeout);
+                setTimeout(() => { hideLoading(); }, 1000);
               }
-            }
-          }, 8000);
-          
-          contentView.appendChild(obj);
+            };
+            frame.onerror = function(e) {
+              if (attemptingLoad && !hasLoaded) {
+                clearTimeout(loadTimeout);
+                tryNextProxy(index + 1);
+              }
+            };
+            setTimeout(() => {
+              if (document.getElementById('proxy-object') === frame && !hasLoaded && attemptingLoad) {
+                try {
+                  if (frame.contentWindow && frame.contentWindow.document) {
+                    hasLoaded = true;
+                    clearTimeout(loadTimeout);
+                    hideLoading();
+                  }
+                } catch (_) {
+                  hasLoaded = true;
+                  clearTimeout(loadTimeout);
+                  hideLoading();
+                }
+              }
+            }, 8000);
+          }
         } catch (error) {
           console.error(`Error setting up ${proxy.name}:`, error);
           if (attemptingLoad) {
@@ -1286,11 +1399,33 @@
     }
     
     async function fetchViaProxy(url) {
+      // AllOrigins public CORS proxy (method2 only)
       const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
       const response = await fetch(proxy);
-      if (!response.ok) throw new Error("Proxy failed with status " + response.status);
+      if (!response.ok) throw new Error('Proxy failed with status ' + response.status);
       const json = await response.json();
       return json.contents;
+    }
+
+    // Appwrite-only fetcher used by method4 source
+    async function fetchViaAppwrite(url) {
+      const { Client, Functions } = Appwrite;
+      const client = new Client()
+        .setEndpoint(APPWRITE_ENDPOINT)
+        .setProject(APPWRITE_PROJECT);
+      const functions = new Functions(client);
+      const exec = await functions.createExecution(
+        FUNCTION_ID,
+        JSON.stringify({ url }),
+        false,
+        undefined,
+        'POST'
+      );
+      const body = typeof exec.responseBody === 'string' ? exec.responseBody : '';
+      if (exec.status !== 'completed' || exec.statusCode < 200 || exec.statusCode >= 300) {
+        throw new Error('Appwrite execution failed: ' + exec.statusCode);
+      }
+      return body;
     }
     
     function handleAllMethodsFailed() {
@@ -1317,7 +1452,8 @@
       attemptingLoad = false;
       
       // Find next enabled method
-      const methods = ['method1', 'method2', 'method3', 'method4'];
+  // Prioritize Appwrite (method4) right after Direct (method1)
+  const methods = ['method1', 'method4', 'method2', 'method3'];
       const currentIndex = methods.indexOf(currentMethod.split('_')[0]); // handle method4_x format
       
       // If we're switching due to failure, start from current index + 1
@@ -1372,7 +1508,6 @@
       document.getElementById('content-view').style.display = 'none';
       document.querySelector('.back-btn-area').style.display = 'none';
       document.getElementById('url-input').value = '';
-      document.getElementById('option-container').style.display = 'none';
       document.getElementById('method-switch').style.opacity = '0';
       document.getElementById('method-switch').classList.remove('show-dropdown');
       hideLoading();
@@ -1413,6 +1548,8 @@
       
       // Re-render the sources list when opening
       if (modal.style.display === 'flex') {
+  // Ensure Appwrite is present and ordered after Direct
+  ensureAppwriteSourceExists();
         renderSourcesList();
       }
     }
@@ -1429,7 +1566,7 @@
                           source.speed === 'medium' ? 'speed-medium' : 'speed-slow';
         
         // Determine if this is a custom source
-        const isCustom = !source.isDefault;
+  const isCustom = !source.isDefault;
         
         sourceItem.innerHTML = `
           <div class="source-header">
@@ -1460,6 +1597,39 @@
         
         sourcesList.appendChild(sourceItem);
       });
+    }
+
+    // Ensure we have an Appwrite default advanced proxy as method4_1 and place it right after Direct
+    function ensureAppwriteSourceExists() {
+      const sourceObj = {
+        id: 'appwrite-proxy',
+        name: 'Appwrite Proxy',
+        description: 'Custom proxy similar to AllOrigions but better.',
+        urlTemplate: '{appwrite}',
+        speed: 'fast',
+        enabled: true,
+        isDefault: true,
+        method: 'method4_1',
+      };
+      // Ensure Direct is at index 0 if present
+      const directIndex = proxySources.findIndex(s => s.id === 'direct');
+      if (directIndex > 0) {
+        const [directItem] = proxySources.splice(directIndex, 1);
+        proxySources.unshift(directItem);
+      }
+      const existingIndex = proxySources.findIndex(s => s.id === 'appwrite-proxy');
+      if (existingIndex === -1) {
+        // Insert at position 1 (right after Direct if present)
+        proxySources.splice(1, 0, sourceObj);
+      } else {
+        // Update existing properties
+        Object.assign(proxySources[existingIndex], sourceObj);
+        // Move to index 1 if not already there
+        if (existingIndex !== 1) {
+          const [item] = proxySources.splice(existingIndex, 1);
+          proxySources.splice(1, 0, item);
+        }
+      }
     }
     
     function toggleSource(sourceId, enabled) {
@@ -1582,32 +1752,16 @@
             enabled: true,
             isDefault: true,
             method: 'method3'
-          },
-          {
-            id: '12ft',
-            name: '12ft.io',
-            description: 'Removes paywalls and bypasses site restrictions. Works well for news sites and articles behind subscription walls.',
-            urlTemplate: 'https://12ft.io/${url}',
-            speed: 'medium',
-            enabled: true,
-            isDefault: true,
-            method: 'method4_0'
-          },
-          {
-            id: 'archive-today',
-            name: 'Archive.today',
-            description: 'Web archiving service that takes snapshots of websites. Good for preserving content that might disappear.',
-            urlTemplate: 'https://archive.today/${url}',
-            speed: 'slow',
-            enabled: true,
-            isDefault: true,
-            method: 'method4_2'
           }
         ];
         
         // Clear cookie
         document.cookie = "webNavigatorSettings=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+  // Re-add and order Appwrite right after Direct
+  ensureAppwriteSourceExists();
         
+  // Defaults restored; add custom sources via UI if desired
+
         renderSourcesList();
         showNotification("Settings reset to default");
       }
@@ -1620,8 +1774,9 @@
         try {
           const savedSettings = JSON.parse(decodeURIComponent(cookieMatch[1]));
           if (savedSettings && Array.isArray(savedSettings.sources)) {
-            proxySources = savedSettings.sources;
-            console.log("Loaded sources from cookie:", proxySources.length);
+            // Load saved sources but filter out deprecated providers
+            proxySources = savedSettings.sources.filter(s => s.id !== '12ft' && s.id !== 'archive-today' && s.id !== 'appwrite-http');
+            console.log("Loaded sources from cookie (filtered):", proxySources.length);
           }
         } catch (e) {
           console.error("Error parsing saved settings:", e);
@@ -1637,6 +1792,77 @@
       setTimeout(() => {
         notification.classList.remove('show');
       }, 3000);
+    }
+
+    // Theme functions
+    function buildThemeSwatches() {
+      const container = document.getElementById('theme-swatches');
+      if (!container) return;
+      container.innerHTML = '';
+      Object.keys(THEMES).forEach(key => {
+        const sw = document.createElement('button');
+        sw.type = 'button';
+        sw.className = 'swatch';
+        const v = THEMES[key].vars;
+        // Use accent with a subtle radial to hint depth
+        sw.style.background = `radial-gradient(circle at 30% 30%, ${hexWithAlpha(v['--accent'], 0.9)} 0%, ${v['--light-green']} 70%)`;
+        sw.title = THEMES[key].name;
+        sw.setAttribute('aria-label', THEMES[key].name + ' theme');
+        sw.addEventListener('click', () => setTheme(key));
+        sw.dataset.theme = key;
+        container.appendChild(sw);
+      });
+      // Mark current
+      updateSwatchSelection();
+    }
+
+    function toggleThemePicker() {
+      const tp = document.getElementById('theme-picker');
+      if (!tp) return;
+      tp.classList.toggle('show');
+    }
+
+    function setTheme(name) {
+      if (!THEMES[name]) return;
+      applyTheme(name);
+      writeThemeToCookie(name);
+      updateSwatchSelection();
+      showNotification(`${THEMES[name].name} theme applied`);
+    }
+
+    function applyTheme(name) {
+      currentTheme = name;
+      const root = document.documentElement;
+      const vars = THEMES[name].vars;
+      Object.keys(vars).forEach(k => root.style.setProperty(k, vars[k]));
+    }
+
+    function updateSwatchSelection() {
+      const container = document.getElementById('theme-swatches');
+      if (!container) return;
+      container.querySelectorAll('.swatch').forEach(el => {
+        el.classList.toggle('selected', el.dataset.theme === currentTheme);
+      });
+    }
+
+    function writeThemeToCookie(name) {
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 365);
+      document.cookie = `${THEME_COOKIE}=${encodeURIComponent(name)};expires=${expiryDate.toUTCString()};path=/;SameSite=Lax`;
+    }
+
+    function readThemeFromCookie() {
+      const m = document.cookie.match(new RegExp(`${THEME_COOKIE}=([^;]+)`));
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+
+    function hexWithAlpha(hex, alpha) {
+      // Accept #RRGGBB, return rgba()
+      const h = hex.replace('#','');
+      const r = parseInt(h.substring(0,2), 16);
+      const g = parseInt(h.substring(2,4), 16);
+      const b = parseInt(h.substring(4,6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
   </script>
 </body>
